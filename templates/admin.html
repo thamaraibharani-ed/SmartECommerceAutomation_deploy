@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% block title %}Admin | Lotus Cart{% endblock %}
+
+{% block content %}
+<section class="page">
+    <h1>⚙️ Admin Dashboard</h1>
+
+    <div class="stat-grid">
+        <div class="stat"><span>Registered users</span><strong>{{ stats.users }}</strong></div>
+        <div class="stat"><span>Total orders</span><strong>{{ stats.orders }}</strong></div>
+        <div class="stat"><span>Placed orders</span><strong>{{ stats.placed }}</strong></div>
+        <div class="stat"><span>Cancelled</span><strong>{{ stats.cancelled }}</strong></div>
+        <div class="stat"><span>Order value (placed)</span><strong>₹{{ stats.revenue }}</strong></div>
+    </div>
+
+    <h2 class="mt">👥 Registered users</h2>
+    <div class="table-wrap">
+        <table class="data-table">
+            <thead>
+                <tr><th>#</th><th>Name</th><th>Email</th><th>Mobile</th><th>Joined</th><th>Last login</th><th>Logins</th></tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                <tr>
+                    <td>{{ user.id }}</td>
+                    <td>{{ user.name }}</td>
+                    <td>{{ user.email }}</td>
+                    <td>{{ user.phone }}</td>
+                    <td>{{ user.created_at }}</td>
+                    <td>{{ user.last_login or '-' }}</td>
+                    <td>{{ user.login_count }}</td>
+                </tr>
+                {% else %}
+                <tr><td colspan="7" class="muted">No users yet.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <h2 class="mt">🔐 Recent logins (last 100)</h2>
+    <div class="table-wrap">
+        <table class="data-table">
+            <thead>
+                <tr><th>Time</th><th>Name</th><th>Email</th><th>Result</th><th>IP address</th></tr>
+            </thead>
+            <tbody>
+                {% for log in logins %}
+                <tr>
+                    <td>{{ log.created_at }}</td>
+                    <td>{{ log.user_name or '-' }}</td>
+                    <td>{{ log.email }}</td>
+                    <td>
+                        {% if log.success %}<span class="badge status-placed">Success</span>
+                        {% else %}<span class="badge status-cancelled">Failed</span>{% endif %}
+                    </td>
+                    <td>{{ log.ip }}</td>
+                </tr>
+                {% else %}
+                <tr><td colspan="5" class="muted">No logins yet.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <h2 class="mt">📦 Orders (last 100)</h2>
+    <div class="table-wrap">
+        <table class="data-table">
+            <thead>
+                <tr><th>#</th><th>Customer</th><th>Total</th><th>Status</th><th>Payment</th><th>Method</th><th>Placed on</th></tr>
+            </thead>
+            <tbody>
+                {% for order in orders %}
+                <tr>
+                    <td>{{ order.id }}</td>
+                    <td>{{ order.user_name or order.name }}<br><small class="muted">{{ order.user_email or '' }}</small></td>
+                    <td>₹{{ order.total }}</td>
+                    <td><span class="badge status-{{ order.status|lower|replace(' ', '-') }}">{{ order.status }}</span></td>
+                    <td>{{ order.payment_status }}</td>
+                    <td>{{ 'Cash on Delivery' if order.payment_method == 'cod' else 'Online' }}</td>
+                    <td>{{ order.created_at }}</td>
+                </tr>
+                {% else %}
+                <tr><td colspan="7" class="muted">No orders yet.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+{% endblock %}

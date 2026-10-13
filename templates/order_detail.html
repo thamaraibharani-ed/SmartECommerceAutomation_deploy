@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}Order #{{ order.id }} | Lotus Cart{% endblock %}
+
+{% block content %}
+<section class="page narrow">
+    <h1>Order #{{ order.id }}</h1>
+
+    <div class="panel">
+        <div class="badges">
+            <span class="badge status-{{ order.status|lower|replace(' ', '-') }}">{{ order.status }}</span>
+            <span class="badge pay">Payment: {{ order.payment_status }}</span>
+        </div>
+        <p class="muted">Placed on {{ order.created_at }}</p>
+
+        {% for item in items %}
+        <div class="summary-row">
+            <span>{{ item.name }} × {{ item.qty }}</span>
+            <span>₹{{ item.price * item.qty }}</span>
+        </div>
+        {% endfor %}
+        <div class="summary-row"><span>Delivery</span><span class="free">FREE</span></div>
+        <div class="summary-row total-row"><span>Total</span><span>₹{{ order.total }}</span></div>
+
+        <h2 class="mt">Delivering to</h2>
+        <p>{{ order.name }} · {{ order.phone }}<br>{{ order.address }} - {{ order.pincode }}</p>
+
+        <div class="actions">
+            {% if order.status == 'Awaiting Payment' %}
+                <a class="primary-btn" href="{{ url_for('pay', order_id=order.id) }}">Pay Now</a>
+            {% endif %}
+
+            {% if order.status in ('Placed', 'Awaiting Payment') %}
+            <form method="post" action="{{ url_for('order_cancel', order_id=order.id) }}"
+                  onsubmit="return confirm('Cancel this order?');">
+                <button class="danger-btn" type="submit">Cancel Order</button>
+            </form>
+            {% endif %}
+
+            <a class="secondary-link" href="{{ url_for('home') }}#products">Continue shopping</a>
+        </div>
+    </div>
+</section>
+{% endblock %}

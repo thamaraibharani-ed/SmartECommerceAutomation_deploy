@@ -1,0 +1,136 @@
+{% extends "base.html" %}
+{% block title %}{{ product.name }} | Lotus Cart{% endblock %}
+
+{% block content %}
+<section class="page">
+
+    <div class="breadcrumb">
+        <a href="{{ url_for('home') }}">Home</a> ›
+        <a href="{{ url_for('home', q=product.category) }}">{{ product.category }}</a> ›
+        <span>{{ product.name }}</span>
+    </div>
+
+    <div class="detail-layout">
+
+        <div class="detail-image">
+            {% if product.image %}
+                <img src="{{ product.image }}" alt="{{ product.name }}">
+            {% else %}
+                <span class="detail-emoji">{{ product.emoji }}</span>
+            {% endif %}
+        </div>
+
+        <div class="detail-info">
+            <div class="product-category">{{ product.category }}</div>
+            <h1>{{ product.name }}</h1>
+
+            <div class="rating">★★★★★
+                <span style="color:#7b8798"> (New)</span>
+            </div>
+
+            <div class="detail-price">₹{{ product.price }}</div>
+            <p class="tax-note">Inclusive of all taxes · Free delivery</p>
+
+            <p class="detail-desc">{{ product.description }}</p>
+
+            <div class="qty-row">
+                <span class="qty-label">Quantity</span>
+                <div class="qty-box">
+                    <button class="qty-btn" type="button" id="qty-minus" aria-label="Decrease">−</button>
+                    <span class="qty" id="qty-value">1</span>
+                    <button class="qty-btn" type="button" id="qty-plus" aria-label="Increase">+</button>
+                </div>
+            </div>
+
+            <div class="detail-actions">
+                <button class="add-btn detail-add" id="detail-add" type="button">🛒 Add to Cart</button>
+
+                <form method="post" action="{{ url_for('cart_buy_now', product_id=product.id) }}">
+                    <input type="hidden" name="qty" id="buy-qty" value="1">
+                    <button class="primary-btn detail-buy" type="submit">⚡ Buy Now</button>
+                </form>
+            </div>
+
+            <p class="in-cart-note" id="in-cart-note"
+               {% if not in_cart %}style="display:none"{% endif %}>
+                <span id="in-cart-qty">{{ in_cart }}</span> in your cart ·
+                <a href="{{ url_for('cart_page') }}">View cart</a>
+            </p>
+
+            <div class="detail-table">
+                <div><span>Category</span><strong>{{ product.category }}</strong></div>
+                <div><span>Product ID</span><strong>#{{ product.id }}</strong></div>
+                <div><span>Delivery</span><strong>Free delivery</strong></div>
+                <div><span>Payment</span><strong>Cash on Delivery / Online</strong></div>
+            </div>
+        </div>
+    </div>
+
+    {% if related %}
+    <h2 class="related-title">You may also like</h2>
+    <div class="product-grid">
+        {% for item in related %}
+        <article class="product-card">
+            <a href="{{ url_for('product_detail', product_id=item.id) }}" class="card-link">
+                <div class="product-image">
+                    {% if item.image %}
+                        <img class="product-photo" src="{{ item.image }}" alt="{{ item.name }}" loading="lazy">
+                    {% else %}
+                        <span class="product-fallback">{{ item.emoji }}</span>
+                    {% endif %}
+                </div>
+                <div class="product-category">{{ item.category }}</div>
+                <h3>{{ item.name }}</h3>
+            </a>
+            <div class="product-bottom">
+                <span class="price">₹{{ item.price }}</span>
+                <a class="add-btn view-btn" href="{{ url_for('product_detail', product_id=item.id) }}">View</a>
+            </div>
+        </article>
+        {% endfor %}
+    </div>
+    {% endif %}
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    let qty = 1;
+    const MAX_QTY = 10;
+    const qtyValue = document.getElementById("qty-value");
+    const buyQty = document.getElementById("buy-qty");
+
+    function setQty(value) {
+        qty = Math.max(1, Math.min(MAX_QTY, value));
+        qtyValue.textContent = qty;
+        buyQty.value = qty;
+    }
+
+    document.getElementById("qty-minus").addEventListener("click", () => setQty(qty - 1));
+    document.getElementById("qty-plus").addEventListener("click", () => setQty(qty + 1));
+
+    const addBtn = document.getElementById("detail-add");
+
+    addBtn.addEventListener("click", () => {
+        addBtn.disabled = true;
+        const body = new FormData();
+        body.append("qty", qty);
+
+        fetch("{{ url_for('cart_add', product_id=product.id) }}", { method: "POST", body })
+            .then(r => r.json())
+            .then(data => {
+                document.getElementById("cart-count").textContent = data.count;
+                document.getElementById("in-cart-qty").textContent = data.qty;
+                document.getElementById("in-cart-note").style.display = "block";
+                addBtn.textContent = "✓ Added to Cart";
+                addBtn.classList.add("added");
+                setTimeout(() => {
+                    addBtn.textContent = "🛒 Add to Cart";
+                    addBtn.classList.remove("added");
+                }, 1800);
+            })
+            .catch(() => { addBtn.textContent = "Try again"; })
+            .finally(() => { addBtn.disabled = false; });
+    });
+</script>
+{% endblock %}

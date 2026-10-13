@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% block title %}My Cart | Lotus Cart{% endblock %}
+
+{% block content %}
+<section class="page">
+    <h1>🛒 My Cart</h1>
+
+    {% if items %}
+    <div class="cart-layout">
+
+        <div class="cart-list">
+            {% for item in items %}
+            <div class="cart-item">
+                <div class="cart-thumb">
+                    {% if item.product.image %}
+                        <img src="{{ item.product.image }}" alt="{{ item.product.name }}">
+                    {% else %}
+                        <span>{{ item.product.emoji }}</span>
+                    {% endif %}
+                </div>
+
+                <div class="cart-info">
+                    <h3><a href="{{ url_for('product_detail', product_id=item.product.id) }}">{{ item.product.name }}</a></h3>
+                    <p>{{ item.product.category }}</p>
+                    <p class="unit">₹{{ item.product.price }} each</p>
+                </div>
+
+                <div class="qty-box">
+                    <form method="post" action="{{ url_for('cart_update', product_id=item.product.id) }}">
+                        <input type="hidden" name="action" value="dec">
+                        <button class="qty-btn" type="submit" aria-label="Decrease">−</button>
+                    </form>
+                    <span class="qty">{{ item.qty }}</span>
+                    <form method="post" action="{{ url_for('cart_update', product_id=item.product.id) }}">
+                        <input type="hidden" name="action" value="inc">
+                        <button class="qty-btn" type="submit" aria-label="Increase">+</button>
+                    </form>
+                </div>
+
+                <div class="cart-subtotal">₹{{ item.subtotal }}</div>
+
+                <form method="post" action="{{ url_for('cart_update', product_id=item.product.id) }}">
+                    <input type="hidden" name="action" value="remove">
+                    <button class="remove-btn" type="submit">Remove</button>
+                </form>
+            </div>
+            {% endfor %}
+
+            <form method="post" action="{{ url_for('cart_clear') }}">
+                <button class="link-btn" type="submit">Clear cart</button>
+            </form>
+        </div>
+
+        <aside class="summary">
+            <h2>Order Summary</h2>
+            <div class="summary-row"><span>Items</span><span>{{ cart_count }}</span></div>
+            <div class="summary-row"><span>Subtotal</span><span>₹{{ total }}</span></div>
+            <div class="summary-row"><span>Delivery</span><span class="free">FREE</span></div>
+            <div class="summary-row total-row"><span>Total</span><span>₹{{ total }}</span></div>
+
+            <a class="primary-btn full" href="{{ url_for('checkout') }}">Proceed to Checkout →</a>
+            {% if not current_user %}
+            <p class="muted center-text">You will be asked to log in before checkout.</p>
+            {% endif %}
+            <a class="secondary-link" href="{{ url_for('home') }}#products">← Continue shopping</a>
+        </aside>
+
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <div class="empty-icon">🛒</div>
+        <h2>Your cart is empty</h2>
+        <p>Add some lovely products and they will show up here.</p>
+        <a class="primary-btn" href="{{ url_for('home') }}#products">Start Shopping</a>
+    </div>
+    {% endif %}
+</section>
+{% endblock %}

@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}Login | Lotus Cart{% endblock %}
+
+{% block content %}
+<section class="page auth-page">
+    <div class="auth-card">
+        <h1>Welcome back 🌸</h1>
+        <p class="muted">Log in to place orders and track them.</p>
+
+        <form method="post">
+            <input type="hidden" name="next" value="{{ next_url }}">
+
+            <label>Email
+                <input type="email" name="email" autocomplete="email" required autofocus>
+            </label>
+
+            <label>Password
+                <input type="password" name="password" autocomplete="current-password" required>
+            </label>
+
+            <button class="primary-btn full" type="submit">Login</button>
+        </form>
+
+        <p class="auth-switch">
+            New here?
+            <a href="{{ url_for('register', next=next_url) }}">Create an account</a>
+        </p>
+    </div>
+</section>
+{% endblock %}

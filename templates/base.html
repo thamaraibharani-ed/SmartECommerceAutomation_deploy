@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Lotus Cart | Online Shopping{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='cart.css') }}">
+</head>
+<body>
+
+    <div class="top-strip">
+        🌸 A little happiness in every purchase — Welcome to Lotus Cart!
+    </div>
+
+    <nav class="navbar">
+        <a class="logo" href="{{ url_for('home') }}">🌸 Lotus<span>Cart</span></a>
+
+        <form class="search" action="{{ url_for('home') }}" method="get">
+            <input type="text" name="q"
+                   placeholder="Search your favourite products..."
+                   value="{{ search_query or '' }}">
+            <button type="submit">Search</button>
+        </form>
+
+        <div class="nav-actions">
+            {% if is_admin %}
+            <a class="admin-link" href="{{ url_for('admin_page') }}">⚙️ Admin</a>
+            {% endif %}
+            <a class="orders-link" href="{{ url_for('orders_page') }}">📦 My Orders</a>
+            <a class="cart-link" href="{{ url_for('cart_page') }}">
+                🛒 My Cart (<span id="cart-count">{{ cart_count }}</span>)
+            </a>
+            {% if current_user %}
+            <span class="user-chip">👤 {{ current_user['name'].split(' ')[0] }}</span>
+            <form method="post" action="{{ url_for('logout') }}" class="logout-form">
+                <button class="logout-btn" type="submit">Logout</button>
+            </form>
+            {% else %}
+            <a class="login-link" href="{{ url_for('login') }}">Login</a>
+            <a class="register-link" href="{{ url_for('register') }}">Register</a>
+            {% endif %}
+        </div>
+    </nav>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <div class="flash-wrap">
+        {% for category, message in messages %}
+        <div class="flash {{ category }}">{{ message }}</div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    {% endwith %}
+
+    {% block content %}{% endblock %}
+
+    <footer>
+        🌸 Lotus Cart · Made with care · Your everyday shopping corner
+    </footer>
+
+    {% block scripts %}{% endblock %}
+</body>
+</html>

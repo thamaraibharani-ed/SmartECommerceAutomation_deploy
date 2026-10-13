@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}My Orders | Lotus Cart{% endblock %}
+
+{% block content %}
+<section class="page narrow">
+    <h1>📦 My Orders</h1>
+
+    {% if orders %}
+        {% for entry in orders %}
+        <a class="order-card" href="{{ url_for('order_detail', order_id=entry.order.id) }}">
+            <div>
+                <strong>Order #{{ entry.order.id }}</strong>
+                <p class="muted">{{ entry.order.created_at }}</p>
+                <p>
+                    {% for item in entry.lines %}{{ item.name }} × {{ item.qty }}{% if not loop.last %}, {% endif %}{% endfor %}
+                </p>
+            </div>
+            <div class="order-right">
+                <span class="badge status-{{ entry.order.status|lower|replace(' ', '-') }}">{{ entry.order.status }}</span>
+                <strong>₹{{ entry.order.total }}</strong>
+            </div>
+        </a>
+        {% endfor %}
+    {% else %}
+    <div class="empty-state">
+        <div class="empty-icon">📦</div>
+        <h2>No orders yet</h2>
+        <p>Your orders will appear here after you place one.</p>
+        <a class="primary-btn" href="{{ url_for('home') }}#products">Start Shopping</a>
+    </div>
+    {% endif %}
+</section>
+{% endblock %}

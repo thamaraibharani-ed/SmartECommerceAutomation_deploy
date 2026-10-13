@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %}Payment | Lotus Cart{% endblock %}
+
+{% block content %}
+<section class="page narrow">
+    <h1>Complete your payment</h1>
+
+    <div class="panel">
+        <p class="muted">Order #{{ order.id }}</p>
+        {% for item in items %}
+        <div class="summary-row">
+            <span>{{ item.name }} × {{ item.qty }}</span>
+            <span>₹{{ item.price * item.qty }}</span>
+        </div>
+        {% endfor %}
+        <div class="summary-row total-row"><span>Amount to pay</span><span>₹{{ order.total }}</span></div>
+
+        {% if session_id %}
+            <button id="pay-btn" class="primary-btn full" type="button">Pay ₹{{ order.total }}</button>
+            {% if cf_mode != 'production' %}
+            <div class="notice">
+                Test mode: use Cashfree test card / UPI details. No real money is charged.
+            </div>
+            {% endif %}
+        {% else %}
+            <div class="notice">
+                Demo payment mode: no real money is charged.
+                Add Cashfree keys in app.py for the real payment gateway.
+            </div>
+            <form method="post" action="{{ url_for('pay_demo', order_id=order.id) }}">
+                <button class="primary-btn full" type="submit">Pay ₹{{ order.total }} (Demo)</button>
+            </form>
+        {% endif %}
+
+        <form method="post" action="{{ url_for('order_cancel', order_id=order.id) }}">
+            <button class="link-btn" type="submit">Cancel this order</button>
+        </form>
+    </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+{% if session_id %}
+<script src="https://sdk.cashfree.com/js/v3/cashfree.js"></script>
+<script>
+    const cashfree = Cashfree({ mode: "{{ cf_mode }}" });
+
+    function startPayment() {
+        cashfree.checkout({
+            paymentSessionId: "{{ session_id }}",
+            redirectTarget: "_self"
+        });
+    }
+
+    document.getElementById("pay-btn").addEventListener("click", startPayment);
+    startPayment();
+</script>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}Register | Lotus Cart{% endblock %}
+
+{% block content %}
+<section class="page auth-page">
+    <div class="auth-card">
+        <h1>Create your account 🌸</h1>
+        <p class="muted">Takes less than a minute.</p>
+
+        <form method="post">
+            <input type="hidden" name="next" value="{{ next_url }}">
+
+            <label>Full name
+                <input type="text" name="name" value="{{ form.name }}" autocomplete="name" required>
+            </label>
+
+            <label>Email
+                <input type="email" name="email" value="{{ form.email }}" autocomplete="email" required>
+            </label>
+
+            <label>Mobile number
+                <input type="tel" name="phone" value="{{ form.phone }}" maxlength="10"
+                       placeholder="10-digit number" autocomplete="tel" required>
+            </label>
+
+            <label>Password
+                <input type="password" name="password" minlength="6"
+                       placeholder="At least 6 characters" autocomplete="new-password" required>
+            </label>
+
+            <label>Confirm password
+                <input type="password" name="confirm" minlength="6" autocomplete="new-password" required>
+            </label>
+
+            <button class="primary-btn full" type="submit">Create account</button>
+        </form>
+
+        <p class="auth-switch">
+            Already have an account?
+            <a href="{{ url_for('login', next=next_url) }}">Login</a>
+        </p>
+    </div>
+</section>
+{% endblock %}

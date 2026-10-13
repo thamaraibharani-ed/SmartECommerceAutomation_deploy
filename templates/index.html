@@ -1,0 +1,143 @@
+{% extends "base.html" %}
+
+{% block content %}
+<main>
+    <section class="hero">
+        <div class="hero-copy">
+            <div class="eyebrow">A fresh way to shop</div>
+
+            <h1>Find your next <span>favourite</span> thing.</h1>
+
+            <p>
+                Discover lovely everyday essentials, explore new
+                favourites and enjoy a simple shopping experience
+                with Lotus Cart.
+            </p>
+
+            <a href="#products" class="primary-btn">Explore Products →</a>
+        </div>
+
+        <div class="hero-art" aria-label="Shopping bags">🛍️</div>
+    </section>
+
+    <section class="benefits">
+        <div class="benefit">
+            <span class="benefit-icon">🚚</span>
+            <div>
+                <strong>Easy Shopping</strong>
+                <p>A smooth shopping experience</p>
+            </div>
+        </div>
+
+        <div class="benefit">
+            <span class="benefit-icon">💗</span>
+            <div>
+                <strong>Handpicked Finds</strong>
+                <p>Explore products you'll love</p>
+            </div>
+        </div>
+
+        <div class="benefit">
+            <span class="benefit-icon">🔒</span>
+            <div>
+                <strong>Simple & Secure</strong>
+                <p>Designed with care</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="products-section" id="products">
+        <div class="section-heading">
+            <div>
+                <h2>Explore our collection</h2>
+                <p>Little things that make every day better.</p>
+            </div>
+        </div>
+
+        <div class="product-grid" id="product-grid">
+            {% for product in products %}
+            <article class="product-card">
+
+                <a href="{{ url_for('product_detail', product_id=product.id) }}" class="card-link">
+                    <div class="product-image">
+                        {% if product.image %}
+                            <img class="product-photo"
+                                 src="{{ product.image }}"
+                                 alt="{{ product.name }}"
+                                 loading="lazy">
+                        {% else %}
+                            <span class="product-fallback">{{ product.emoji }}</span>
+                        {% endif %}
+                    </div>
+
+                    <div class="product-category">{{ product.category }}</div>
+
+                    <h3>{{ product.name }}</h3>
+                </a>
+
+                <div class="rating">★★★★★
+                    <span style="color:#7b8798"> (New)</span>
+                </div>
+
+                <div class="product-bottom">
+                    <span class="price">₹{{ product.price }}</span>
+
+                    <button class="add-btn" type="button"
+                            onclick="addToCart(this, {{ product.id }})">
+                        + Add to cart
+                    </button>
+                </div>
+            </article>
+            {% endfor %}
+        </div>
+
+        <div class="no-results" id="no-results">
+            No products found. Try another search.
+        </div>
+    </section>
+</main>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    function addToCart(button, productId) {
+        button.disabled = true;
+
+        fetch("/cart/add/" + productId, { method: "POST" })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById("cart-count").textContent = data.count;
+                button.textContent = "✓ Added (" + data.qty + ")";
+                button.classList.add("added");
+            })
+            .catch(() => {
+                button.textContent = "Try again";
+            })
+            .finally(() => {
+                button.disabled = false;
+            });
+    }
+
+    const searchInput = document.querySelector('.search input[name="q"]');
+    const cards = document.querySelectorAll(".product-card");
+    const noResults = document.getElementById("no-results");
+
+    function filterProducts() {
+        const query = searchInput.value.trim().toLowerCase();
+        let visibleCount = 0;
+
+        cards.forEach(card => {
+            const text = card.querySelector("h3").textContent + " " +
+                         card.querySelector(".product-category").textContent;
+            const matches = text.toLowerCase().includes(query);
+            card.style.display = matches ? "" : "none";
+            if (matches) visibleCount++;
+        });
+
+        noResults.style.display = visibleCount === 0 ? "block" : "none";
+    }
+
+    searchInput.addEventListener("input", filterProducts);
+    filterProducts();
+</script>
+{% endblock %}

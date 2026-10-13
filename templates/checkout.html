@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% block title %}Checkout | Lotus Cart{% endblock %}
+
+{% block content %}
+<section class="page">
+    <h1>Checkout</h1>
+
+    <form method="post" class="cart-layout">
+
+        <div class="panel">
+            <h2>Delivery Details</h2>
+
+            <label>Full name
+                <input type="text" name="name" value="{{ form.name }}" required>
+            </label>
+
+            <label>Mobile number
+                <input type="tel" name="phone" value="{{ form.phone }}"
+                       maxlength="10" placeholder="10-digit number" required>
+            </label>
+
+            <label>Delivery address
+                <textarea name="address" rows="3"
+                          placeholder="House no, street, area, city" required>{{ form.address }}</textarea>
+            </label>
+
+            <label>Pincode
+                <input type="text" name="pincode" value="{{ form.pincode }}"
+                       maxlength="6" placeholder="6-digit pincode" required>
+            </label>
+
+            <h2 class="mt">Payment Method</h2>
+
+            <label class="radio-card">
+                <input type="radio" name="payment_method" value="cod"
+                       {% if method == 'cod' %}checked{% endif %}>
+                <span>
+                    <strong>Cash on Delivery</strong>
+                    <small>Pay when your order arrives</small>
+                </span>
+            </label>
+
+            <label class="radio-card">
+                <input type="radio" name="payment_method" value="online"
+                       {% if method == 'online' %}checked{% endif %}>
+                <span>
+                    <strong>Pay Online (UPI / Card / Netbanking)</strong>
+                    <small>
+                        {% if gateway_enabled %}
+                            Secure payment powered by Cashfree
+                        {% else %}
+                            Demo payment mode (no real money is charged)
+                        {% endif %}
+                    </small>
+                </span>
+            </label>
+        </div>
+
+        <aside class="summary">
+            <h2>Your Order</h2>
+            {% for item in items %}
+            <div class="summary-row">
+                <span>{{ item.product.name }} × {{ item.qty }}</span>
+                <span>₹{{ item.subtotal }}</span>
+            </div>
+            {% endfor %}
+            <div class="summary-row"><span>Delivery</span><span class="free">FREE</span></div>
+            <div class="summary-row total-row"><span>Total</span><span>₹{{ total }}</span></div>
+
+            <button class="primary-btn full" type="submit">Place Order</button>
+            <a class="secondary-link" href="{{ url_for('cart_page') }}">← Back to cart</a>
+        </aside>
+
+    </form>
+</section>
+{% endblock %}

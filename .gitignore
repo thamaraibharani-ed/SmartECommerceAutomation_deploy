@@ -1,0 +1,6 @@
+.secret_key
+.env
+.venv/
+__pycache__/
+*.pyc
+shop.db
